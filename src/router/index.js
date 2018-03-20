@@ -4,6 +4,7 @@ import Router from 'vue-router'
 const Home = resolve => require(['@/views/Home'], resolve)
 const About = resolve => require(['@/views/About'], resolve)
 const Tool = resolve => require(['@/views/Tool'], resolve)
+const UserDetail = resolve => require(['@/views/UserDetail'], resolve)
 const Error404 = resolve => require(['@/views/error/Error404'], resolve)
 
 Vue.use(Router)
@@ -20,6 +21,10 @@ let routes = [
     {
         path: '/tool',
         component: Tool
+    },
+    {
+        path: '/users/:id',
+        component: UserDetail
     },
     {
         path: '*',

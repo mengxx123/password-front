@@ -1,6 +1,6 @@
 <template>
     <my-page title="密码管理">
-        开发中
+        <p>暂时不对外开放。</p>
     </my-page>
 </template>
 
