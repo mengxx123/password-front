@@ -2,9 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 const Home = resolve => require(['@/views/Home'], resolve)
-const About = resolve => require(['@/views/About'], resolve)
 const Tool = resolve => require(['@/views/Tool'], resolve)
+const Tool2 = resolve => require(['@/views/Tool2'], resolve)
 const UserDetail = resolve => require(['@/views/UserDetail'], resolve)
+const AccountDetail = resolve => require(['@/views/AccountDetail'], resolve)
+const AccountEdit = resolve => require(['@/views/AccountEdit'], resolve)
 const Error404 = resolve => require(['@/views/error/Error404'], resolve)
 
 Vue.use(Router)
@@ -15,16 +17,28 @@ let routes = [
         component: Home
     },
     {
-        path: '/about',
-        component: About
-    },
-    {
         path: '/tool',
         component: Tool
     },
     {
+        path: '/password/generator',
+        component: Tool2
+    },
+    {
         path: '/users/:id',
         component: UserDetail
+    },
+    {
+        path: '/add',
+        component: AccountEdit
+    },
+    {
+        path: '/accounts/:id',
+        component: AccountDetail
+    },
+    {
+        path: '/accounts/:id/edit',
+        component: AccountEdit
     },
     {
         path: '*',
