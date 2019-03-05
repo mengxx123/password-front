@@ -1,10 +1,15 @@
 <template>
     <my-page title="密码管理" :page="page">
-        <p>暂时不对外开放。</p>
+        <p v-if="$store.state.user">
+            <router-link to="/manage">进入管理界面</router-link>
+        </p>
+        <a href="javascript:;" v-if="!$store.state.user" @click="login">点击登陆</a>
     </my-page>
 </template>
 
 <script>
+    import oss from '@/util/oss'
+
     export default {
         data () {
             return {
@@ -19,6 +24,11 @@
                         }
                     ]
                 }
+            }
+        },
+        methods: {
+            login() {
+                location.href = oss.getOauthUrl()
             }
         }
     }

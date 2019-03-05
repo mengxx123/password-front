@@ -1,9 +1,14 @@
 <template>
     <my-page title="用户密码" :page="page">
-        <ui-text-field v-model="key" hintText="请输入密钥" />
-        <button @click="save">保存秘钥</button>
-        <button @click="clearKey">清除秘钥</button>
-        <br>
+        <div class="mask" v-if="maskVisible">
+            <div class="mark-content">
+                <ui-text-field v-model="key" type="password" hintText="请输入密钥" />
+                <button @click="save">进入</button>
+            </div>
+        </div>
+        
+        <!-- <button @click="clearKey">清除秘钥</button>
+        <br> -->
         <input v-model="keyword" placeholder="搜索过滤" />
         <button @click="clearKeyword">清除</button>
         
@@ -44,6 +49,7 @@
                 key: '',
                 keyword: '',
                 accounts: [],
+                maskVisible: true,
                 page: {
                     menu: [
                         // {
@@ -52,6 +58,12 @@
                         //     click: this.search,
                         //     title: '搜索'
                         // },
+                        {
+                            type: 'icon',
+                            icon: 'lock',
+                            click: this.lock,
+                            title: '锁定'
+                        },
                         {
                             type: 'icon',
                             icon: 'refresh',
@@ -87,11 +99,16 @@
         methods: {
             init() {
                 this.key = this.$storage.get('key', '')
+                console.log('this.key', this.key)
+                this.maskVisible = !this.key
+                // if (this.key) {
+                //     this
+                // }
                 this.loadData()
             },
             loadData() {
-                this.userId = this.$route.params.id
-                this.$http.get(`/password/users/${this.userId}/accounts`).then(
+                // this.userId = this.$route.params.id
+                this.$http.get(`/password/users/${this.$store.state.user.id}/accounts`).then(
                     response => {
                         let data = response.data
                         console.log(data)
@@ -111,7 +128,19 @@
                 return CryptoJS.TripleDES.decrypt(text, this.key || '').toString(CryptoJS.enc.Utf8)
             },
             save() {
+                if (!this.key) {
+                    this.$message({
+                        type: 'danger',
+                        text: '功能暂未实现'
+                    })
+                    return
+                }
                 this.$storage.set('key', this.key)
+                this.maskVisible = false
+            },
+            lock() {
+                this.clearKey()
+                this.maskVisible = true
             },
             clearKey() {
                 this.key = ''
@@ -146,6 +175,22 @@
 </script>
 
 <style lang="scss" scoped>
+.mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000000;
+    background-color: #fff;
+    .mark-content {
+        width: 100px;
+        height: 100px;
+    }
+}
 .account-list {
     .item {
         margin-bottom: 16px;

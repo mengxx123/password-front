@@ -4,10 +4,11 @@ import Router from 'vue-router'
 const Home = resolve => require(['@/views/Home'], resolve)
 const Tool = resolve => require(['@/views/Tool'], resolve)
 const Tool2 = resolve => require(['@/views/Tool2'], resolve)
-const UserDetail = resolve => require(['@/views/UserDetail'], resolve)
+const Manage = resolve => require(['@/views/Manage'], resolve)
 const AccountDetail = resolve => require(['@/views/AccountDetail'], resolve)
 const AccountEdit = resolve => require(['@/views/AccountEdit'], resolve)
 const Error404 = resolve => require(['@/views/error/Error404'], resolve)
+const OauthCallback = resolve => require(['@/views/oauth/Callback'], resolve)
 
 Vue.use(Router)
 
@@ -25,8 +26,8 @@ let routes = [
         component: Tool2
     },
     {
-        path: '/users/:id',
-        component: UserDetail
+        path: '/manage',
+        component: Manage
     },
     {
         path: '/add',
@@ -39,6 +40,10 @@ let routes = [
     {
         path: '/accounts/:id/edit',
         component: AccountEdit
+    },
+    {
+        path: '/oauth/callback',
+        component: OauthCallback
     },
     {
         path: '*',
