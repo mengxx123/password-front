@@ -4,11 +4,17 @@
             <div class="title">
                 <router-link :to="`/accounts/${account.id}`">{{ account.title }}</router-link>
             </div>
-            <div>账号：{{ account.account }}</div>
+            <div>
+                账号：{{ account.account || '无' }}
+                <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.account" v-if="account.account">复制</a>
+            </div>
             <div>加密类型：{{ account.type || '-'}} </div>
             <div class="password-box">
-                <span class="password2" v-if="account.type === ''">{{ account.password }}</span>
-                <span class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</span>
+                密码：******
+                <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.password">复制</a>
+                <!-- {{ account.password }} -->
+                <!-- <span class="password2" v-if="account.type === ''">{{ account.password }}</span> -->
+                <!-- <span class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</span> -->
             </div>
             <div>备注：{{ account.note }}</div>
             <div>
@@ -27,6 +33,7 @@
 <script>
     /* eslint-disable */
     const CryptoJS = window.CryptoJS
+    const Clipboard = window.Clipboard
 
     export default {
         data () {
@@ -53,6 +60,22 @@
         },
         mounted() {
             this.init()
+
+            this.clipboard = new Clipboard('.btn-copy')
+            this.clipboard.on('success', e => {
+                console.info('Action:', e.action)
+                console.info('Text:', e.text)
+                console.info('Trigger:', e.trigger)
+                e.clearSelection()
+                this.$message({
+                    type: 'success',
+                    text: '已复制'
+                })
+            })
+            this.clipboard.on('error', function (e) {
+                console.error('Action:', e.action)
+                console.error('Trigger:', e.trigger)
+            })
         },
         filters: {
         },
@@ -98,6 +121,7 @@
                     })
             },
             decrypt(text) {
+                console.log('jiemi', text, this.key, CryptoJS.TripleDES.decrypt(text, this.key || '').toString(CryptoJS.enc.Utf8))
                 return CryptoJS.TripleDES.decrypt(text, this.key || '').toString(CryptoJS.enc.Utf8)
             }
         }
@@ -124,4 +148,7 @@
         display: none;
     }
 }
+.btn-copy {
+        color: #f00;
+    }
 </style>

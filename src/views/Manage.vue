@@ -9,39 +9,35 @@
         
         <!-- <button @click="clearKey">清除秘钥</button>
         <br> -->
-        <input v-model="keyword" placeholder="搜索过滤" />
+        <input v-model="keyword" placeholder="标题/网址/备注搜索" />
+        <button @click="search">搜索</button>
         <button @click="clearKeyword">清除</button>
         
         <ul class="account-list">
             <li class="item" v-for="account, index in filterAccounts">
                 <div class="title">
-                    <router-link :to="`/accounts/${account.id}`">{{ account.title }}</router-link>
+                    <router-link :to="`/accounts/${account.id}`">{{ account.title || '无标题' }}</router-link>
                 </div>
-                <div>账号：{{ account.account }}</div>
-                <div>加密类型：{{ account.type || '-'}} </div>
+                <div>
+                    账号：{{ account.account }}
+                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.account">复制</a>
+                </div>
+                <!-- <div>加密类型：{{ account.type || '-'}} </div> -->
                 <div class="password-box">
-                    密码：
-                    <div class="password2" v-if="account.type === ''">{{ account.password }}</div>
-                    <div class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</div>
-                </div>
-                <div>
-                    备注：
-                    {{ account.note }}</div>
-                <div>
-                    网址：
-                    <a :href="account.url" target="_blank">{{ account.url }}</a>
-                </div>
-                <div>
-                    <!-- <router-link :to="`/accounts/${account.id}/edit`">编辑</router-link> -->
-                    <button @click="remove(account, index)">删除</button>
+                    密码：******
+                    <!-- <div class="password2" v-if="account.type === ''">{{ account.password }}</div> -->
+                    <!-- <div class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</div> -->
+                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="decrypt(account.password)">复制</a>
                 </div>
             </li>
         </ul>
+        <div>最多展示20条</div>
     </my-page>
 </template>
 
 <script>
     const CryptoJS = window.CryptoJS
+    const Clipboard = window.Clipboard
 
     export default {
         data () {
@@ -82,17 +78,40 @@
         },
         computed: {
             filterAccounts() {
-                if (this.keyword) {
-                    return this.accounts.filter(item => {
-                        return item.title.includes(this.keyword) || item.account.includes(this.keyword) ||
-                            item.note.includes(this.keyword) || item.tags.includes(this.keyword)
-                    })
-                }
                 return this.accounts
+                // if (this.keyword) {
+                //     return this.accounts.filter(item => {
+                //         return item.title.includes(this.keyword) || item.account.includes(this.keyword) ||
+                //             item.note.includes(this.keyword) || item.tags.includes(this.keyword)
+                //     })
+                // }
+                // return this.accounts
             }
         },
         mounted() {
+            let { host } = this.$route.query
+            if (host) {
+                this.$router.push(`/manage?keyword=${encodeURIComponent(host)}`)
+                return
+            }
+
             this.init()
+
+            this.clipboard = new Clipboard('.btn-copy')
+            this.clipboard.on('success', e => {
+                console.info('Action:', e.action)
+                console.info('Text:', e.text)
+                console.info('Trigger:', e.trigger)
+                e.clearSelection()
+                this.$message({
+                    type: 'success',
+                    text: '已复制'
+                })
+            })
+            this.clipboard.on('error', function (e) {
+                console.error('Action:', e.action)
+                console.error('Trigger:', e.trigger)
+            })
         },
         filters: {
         },
@@ -107,8 +126,10 @@
                 this.loadData()
             },
             loadData() {
+                let { keyword } = this.$route.query
                 // this.userId = this.$route.params.id
-                this.$http.get(`/password/users/${this.$store.state.user.id}/accounts`).then(
+                this.keyword = keyword
+                this.$http.get(`/password/users/${this.$store.state.user.id}/accounts?keyword=${keyword ? encodeURIComponent(keyword) : ''}`).then(
                     response => {
                         let data = response.data
                         console.log(data)
@@ -148,28 +169,18 @@
             },
             clearKeyword() {
                 this.keyword = ''
+                this.$router.push('/manage')
             },
             search() {
-                this.$message({
-                    type: 'danger',
-                    text: '功能暂未实现'
-                })
-            },
-            remove(item, index) {
-                let ret = confirm(`删除${item.title}?`)
-                if (!ret) {
+                if (!this.keyword) {
+                    this.$message({
+                        type: 'danger',
+                        text: '请输入关键词'
+                    })
                     return
                 }
-                this.$http.delete(`/password/accounts/${item.id}`).then(
-                    response => {
-                        let data = response.data
-                        console.log(data)
-                        this.loadData()
-                    },
-                    response => {
-                        console.log(response)
-                    })
-            }
+                this.$router.push(`/manage?keyword=${encodeURIComponent(this.keyword)}`)
+            },
         }
     }
 </script>
@@ -201,6 +212,9 @@
     .title {
         margin-bottom: 8px;
         font-size: 24px;
+    }
+    .btn-copy {
+        color: #f00;
     }
 }
 .column-title {
