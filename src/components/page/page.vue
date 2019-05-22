@@ -6,16 +6,16 @@
             </div>
             <ui-list @itemClick="toggle()">
                 <ui-list-item title="首页" to="/">
-                    <ui-icon slot="left" value="grade"/>
+                    <ui-icon slot="left" value="home"/>
                 </ui-list-item>
-                <ui-list-item title="密码生成" to="/password/generator">
+                <!-- <ui-list-item title="密码生成" to="/password/generator">
                     <ui-icon slot="left" value="grade"/>
                 </ui-list-item>
                 <ui-list-item title="随机密码" to="/tool">
                     <ui-icon slot="left" value="grade"/>
-                </ui-list-item>
+                </ui-list-item> -->
                 <ui-list-item title="关于" href="https://project.yunser.com/products/9bcb8940004d11e9824a99115ab36818" target="_blank">
-                    <ui-icon slot="left" value="grade"/>
+                    <ui-icon slot="left" value="info"/>
                 </ui-list-item>
             </ui-list>
         </div>

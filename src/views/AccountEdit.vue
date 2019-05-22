@@ -1,21 +1,23 @@
 <template>
     <my-page title="新增编辑" :page="page" backable>
-        <ui-text-field v-model="account.title" label="标题" />
-        <br>
-        <ui-text-field v-model="account.account" label="账号" />
-        <br>
-        <ui-select-field v-model="account.type" label="加密类型">
-            <ui-menu-item value="" title="无"/>
-            <ui-menu-item value="3DES" title="3DES"/>
-        </ui-select-field>
-        <br>
-        <ui-text-field v-model="account.password" label="密码" />
-        <br>
-        <ui-text-field v-model="account.url" label="网址" />
-        <br>
-        <ui-text-field v-model="account.tags" label="标签" />
-        <br>
-        <ui-text-field v-model="account.note" label="备注" multiLine :rows="3" :rowsMax="6" />
+        <div class="common-container container">
+            <ui-text-field v-model="account.title" label="标题" />
+            <br>
+            <ui-text-field v-model="account.account" label="账号" />
+            <br>
+            <ui-select-field v-model="account.type" label="加密类型">
+                <ui-menu-item value="" title="无"/>
+                <ui-menu-item value="3DES" title="3DES"/>
+            </ui-select-field>
+            <br>
+            <ui-text-field v-model="account.password" label="密码" />
+            <br>
+            <ui-text-field v-model="account.url" label="网址" />
+            <br>
+            <ui-text-field v-model="account.tags" label="标签" />
+            <br>
+            <ui-text-field v-model="account.note" label="备注" multiLine :rows="3" :rowsMax="6" />
+        </div>
     </my-page>
 </template>
 

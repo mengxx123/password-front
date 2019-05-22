@@ -15,6 +15,7 @@ Vue.use(Router)
 let routes = [
     {
         path: '/',
+        // redirect: '/manage'
         component: Home
     },
     {

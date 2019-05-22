@@ -1,44 +1,56 @@
 <template>
     <my-page title="用户密码" :page="page">
-        <div class="mask" v-if="maskVisible">
-            <div class="mark-content">
-                <ui-text-field v-model="key" type="password" hintText="请输入密钥" />
-                <button @click="save">进入</button>
+        
+        <!-- <p v-if="$store.state.user">
+                <router-link to="/manage">进入管理界面</router-link>
+            </p> -->
+        <a href="javascript:;" v-if="!$store.state.user" @click="login">点击登陆</a>
+        <div class="common-container container" v-if="$store.state.user">
+            <div class="mask" v-if="maskVisible">
+                <div class="mark-content">
+                    <ui-text-field v-model="key" type="password" hintText="请输入密钥" />
+                    <button @click="save">进入</button>
+                </div>
             </div>
+
+            <div class="search-box">
+                <input class="input" v-model="keyword" placeholder="标题/网址/备注搜索" @keydown="keyDown($event)">
+                <ui-icon-button icon="close" title="搜索" primary @click="clearKeyword" v-if="keyword" />
+                <ui-icon-button icon="search" title="搜索" primary @click="search" />
+            </div>
+            <!-- <button @click="clearKey">清除秘钥</button>
+            <br> -->
+            
+            <ul class="account-list">
+                <li class="item" v-for="account, index in filterAccounts">
+                    <div class="title">
+                        <router-link :to="`/accounts/${account.id}`">{{ account.title || '无标题' }}</router-link>
+                    </div>
+                    <div> 
+                        账号：
+                        <span v-if="!account.account">无</span>
+                        <span class="btn-copy" :data-clipboard-text="account.account" v-if="account.account">{{ account.account }}</span>
+                    </div>
+                    <div class="password-box" v-if="account.password">
+                        密码：
+                        <span class="btn-copy" :data-clipboard-text="decrypt(account.password)">******</span>
+                        <!-- <div class="password2" v-if="account.type === ''">{{ account.password }}</div> -->
+                        <!-- <div class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</div> -->
+                        <!-- <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="decrypt(account.password)">复制</a> -->
+                    </div>
+                </li>
+            </ul>
+            <div>最多展示20条</div>
         </div>
-        
-        <!-- <button @click="clearKey">清除秘钥</button>
-        <br> -->
-        <input v-model="keyword" placeholder="标题/网址/备注搜索" />
-        <button @click="search">搜索</button>
-        <button @click="clearKeyword">清除</button>
-        
-        <ul class="account-list">
-            <li class="item" v-for="account, index in filterAccounts">
-                <div class="title">
-                    <router-link :to="`/accounts/${account.id}`">{{ account.title || '无标题' }}</router-link>
-                </div>
-                <div>
-                    账号：{{ account.account }}
-                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.account">复制</a>
-                </div>
-                <!-- <div>加密类型：{{ account.type || '-'}} </div> -->
-                <div class="password-box">
-                    密码：******
-                    <!-- <div class="password2" v-if="account.type === ''">{{ account.password }}</div> -->
-                    <!-- <div class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</div> -->
-                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="decrypt(account.password)">复制</a>
-                </div>
-            </li>
-        </ul>
-        <div>最多展示20条</div>
     </my-page>
 </template>
 
 <script>
+    /* eslint-disable */
     const CryptoJS = window.CryptoJS
     const Clipboard = window.Clipboard
-
+    import oss from '@/util/oss'
+    
     export default {
         data () {
             return {
@@ -116,7 +128,16 @@
         filters: {
         },
         methods: {
+            keyDown(e) {
+                console.log(e.keyCode)
+                if (e.keyCode === 13) {
+                    this.search()
+                }
+            },
             init() {
+                if (!this.$store.state.user) {
+                    return
+                }
                 this.key = this.$storage.get('key', '')
                 console.log('this.key', this.key)
                 this.maskVisible = !this.key
@@ -152,7 +173,7 @@
                 if (!this.key) {
                     this.$message({
                         type: 'danger',
-                        text: '功能暂未实现'
+                        text: '请输入密钥'
                     })
                     return
                 }
@@ -181,11 +202,19 @@
                 }
                 this.$router.push(`/manage?keyword=${encodeURIComponent(this.keyword)}`)
             },
+            login() {
+                location.href = oss.getOauthUrl()
+            }
         }
     }
 </script>
 
 <style lang="scss" scoped>
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
 .mask {
     position: fixed;
     left: 0;
@@ -211,10 +240,12 @@
     }
     .title {
         margin-bottom: 8px;
-        font-size: 24px;
+        font-size: 16px;
+        font-weight: bold;
     }
     .btn-copy {
-        color: #f00;
+        // color: #f00;
+        cursor: pointer;
     }
 }
 .column-title {
@@ -234,6 +265,27 @@
     }
     .password {
         display: none;
+    }
+}
+.search-box {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 24px;
+    // border: 1px solid #eee;
+    box-shadow: 0 1px 6px rgba(0,0,0,.117647), 0 1px 4px rgba(0,0,0,.117647);
+    background-color: #fff;
+    &:hover {
+        box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .input {
+        flex-grow: 1;
+        display: block;
+        height: 48px;
+        padding: 0 16px;
+        line-height: 48px;
+        border: none;
+        outline: none;
     }
 }
 </style>

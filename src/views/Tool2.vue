@@ -1,48 +1,50 @@
 <template>
     <my-page title="密码生成" :page="page">
-        <ui-text-field v-model="key" :type="keyVisible ? 'text' : 'password'" label="记忆密码" />
-        <ui-icon-button class="btn-visible" :icon="keyVisible ? 'visibility' : 'visibility_off'" @click="toggleKeyVisible" />
-        <br>
-        <ui-text-field v-model="code" label="区分代号" />
-        <!-- <div class="section">
-            <div class="section-title">
-                <h3>选择包含的字符</h3>
+        <div class="common-container container">
+            <ui-text-field v-model="key" :type="keyVisible ? 'text' : 'password'" label="记忆密码" />
+            <ui-icon-button class="btn-visible" :icon="keyVisible ? 'visibility' : 'visibility_off'" @click="toggleKeyVisible" />
+            <br>
+            <ui-text-field v-model="code" label="区分代号" />
+            <!-- <div class="section">
+                <div class="section-title">
+                    <h3>选择包含的字符</h3>
+                </div>
+                <div class="section-body">
+                    <ul class="char-list">
+                        <li class="item" v-for="char in charList">
+                            <ui-checkbox class="checkbox" name="group" 
+                                :nativeValue="char.char" v-model="list" :label="char.title" :title="char.desc"/>
+                        </li>
+                        <li class="item item-other">
+                            <ui-checkbox class="checkbox" v-model="hasOtherChar" label="由我输入的字符" title="想包括什么就输入什么" />
+                            <ui-text-field class="input" v-model="otherChar" v-if="hasOtherChar" />
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="section-body">
-                <ul class="char-list">
-                    <li class="item" v-for="char in charList">
-                        <ui-checkbox class="checkbox" name="group" 
-                            :nativeValue="char.char" v-model="list" :label="char.title" :title="char.desc"/>
-                    </li>
-                    <li class="item item-other">
-                        <ui-checkbox class="checkbox" v-model="hasOtherChar" label="由我输入的字符" title="想包括什么就输入什么" />
-                        <ui-text-field class="input" v-model="otherChar" v-if="hasOtherChar" />
-                    </li>
-                </ul>
+            <div class="section">
+                <div class="section-title">
+                    <h3>选择密码的长度</h3>
+                </div>
+                <div class="section-body">
+                    <ul class="length-list">
+                        <li class="item" v-for="len in lengthList">
+                            <ui-radio class="radio" v-model="length" :nativeValue="'' + len" :label="len + '位'" name="group"/>
+                        </li>
+                        <li class="item item-other">
+                            <ui-radio class="radio" v-model="length" label="其他位数" name="group" nativeValue="-1"/>
+                            <ui-text-field class="input" v-model.number="otherLength" v-if="length === '-1'" />
+                        </li>
+                    </ul>
+                </div>
+            </div> -->
+            <div class="btns">
+                <ui-raised-button class="btn" primary label="生成密码" @click="make" title="选择好了开始生成密码" />
+                <!-- <ui-raised-button class="btn" label="手气不错" @click="make2" title="完全随机试试我的手气" /> -->
+                <ui-raised-button class="btn btn-copy" label="复制密码" v-if="this.result"/>
             </div>
+            <div class="result-box" v-if="result">{{ result }}</div>
         </div>
-        <div class="section">
-            <div class="section-title">
-                <h3>选择密码的长度</h3>
-            </div>
-            <div class="section-body">
-                <ul class="length-list">
-                    <li class="item" v-for="len in lengthList">
-                        <ui-radio class="radio" v-model="length" :nativeValue="'' + len" :label="len + '位'" name="group"/>
-                    </li>
-                    <li class="item item-other">
-                        <ui-radio class="radio" v-model="length" label="其他位数" name="group" nativeValue="-1"/>
-                        <ui-text-field class="input" v-model.number="otherLength" v-if="length === '-1'" />
-                    </li>
-                </ul>
-            </div>
-        </div> -->
-        <div class="btns">
-            <ui-raised-button class="btn" primary label="生成密码" @click="make" title="选择好了开始生成密码" />
-            <!-- <ui-raised-button class="btn" label="手气不错" @click="make2" title="完全随机试试我的手气" /> -->
-            <ui-raised-button class="btn btn-copy" label="复制密码" v-if="this.result"/>
-        </div>
-        <div class="result-box" v-if="result">{{ result }}</div>
     </my-page>
 </template>
 
@@ -166,6 +168,9 @@
 
 <style lang="scss" scoped>
     @import '../scss/var';
+    .container {
+        max-width: 400px;
+    }
     .btn-visible {
         position: relative;
         left: -48px;

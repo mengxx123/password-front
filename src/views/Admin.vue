@@ -1,6 +1,8 @@
 <template>
     <my-page title="我的密码">
-        <p>暂时不对外开放。</p>
+        <div class="common-container container">
+            <p>暂时不对外开放。</p>
+        </div>
     </my-page>
 </template>
 
