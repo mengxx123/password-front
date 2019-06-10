@@ -1,31 +1,54 @@
 <template>
     <my-page title="账号详情" :page="page" backable>
         <div class="common-container container">
-            <div v-if="account">
+            <div v-if="account" class="account">
                 <div class="title">
                     <router-link :to="`/accounts/${account.id}`">{{ account.title }}</router-link>
                 </div>
-                <div>
-                    账号：{{ account.account || '无' }}
-                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.account" v-if="account.account">复制</a>
-                </div>
-                <div>加密类型：{{ account.type || '-'}} </div>
-                <div class="password-box">
-                    密码：******
-                    <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="account.password">复制</a>
-                    <!-- {{ account.password }} -->
-                    <!-- <span class="password2" v-if="account.type === ''">{{ account.password }}</span> -->
-                    <!-- <span class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</span> -->
-                </div>
-                <div>备注：{{ account.note }}</div>
-                <div>
-                    网址：
-                    <a :href="account.url" target="_blank">{{ account.url }}</a>
-                </div>
-                <div>标签：{{ account.tags }}</div>
-                <div>
-                    <!-- <router-link :to="`/accounts/${account.id}/edit`">编辑</router-link> -->
-                    <!-- <button @click="remove(account, index)">删除</button> -->
+                <ul class="meta-list">
+                    <li class="item">
+                        <div class="name">账号：</div>
+                        <div class="content">
+                            {{ account.account || '无' }}
+                            <a class="item-btn btn-copy btn-link" href="javascript:;" :data-clipboard-text="account.account" v-if="account.account">复制</a>
+                        </div>
+                    </li>
+                    <li class="item">
+                        <div class="name">密码：</div>
+                        <div class="content">
+                            {{ passwordVisible ? account.password : '******' }}
+                            <br>
+                            <a class="item-btn btn-copy btn-link" href="javascript:;" :data-clipboard-text="account.password">复制</a>
+                            <a class="item-btn btn-link" href="javascript:;" @click="togglePassword">{{ passwordVisible ? '隐藏' : '显示' }}</a>
+                            <!-- {{ account.password }} -->
+                            <!-- <span class="password2" v-if="account.type === ''">{{ account.password }}</span> -->
+                            <!-- <span class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</span> -->
+                        </div>
+                    </li>
+                    <li class="item">
+                        <div class="name">备注：</div>
+                        <div class="content">
+                            {{ account.note }}
+                        </div>
+                    </li>
+                    <li class="item">
+                        <div class="name">网址：</div>
+                        <div class="content">
+                            <a :href="account.url" target="_blank">{{ account.url }}</a>
+                            <a class="item-btn btn-copy btn-link" href="javascript:;" :data-clipboard-text="account.url">复制</a>
+                        </div>
+                    </li>
+                    <li class="item">
+                        <div class="name">标签：</div>
+                        <div class="content">
+                            {{ account.tags }}
+                        </div>
+                    </li>
+                </ul>
+                <!-- <div>加密类型：{{ account.type || '-'}} </div> -->
+                <div class="btns">
+                    <ui-raised-button class="btn btn-copy" label="复制账号密码" :data-clipboard-text="shareText" />
+                    <ui-raised-button class="btn" label="查看同站点账号" @click="viewSameDomain" v-if="account.url" />
                 </div>
             </div>
         </div>
@@ -33,6 +56,7 @@
 </template>
 
 <script>
+import { access } from 'fs';
     /* eslint-disable */
     const CryptoJS = window.CryptoJS
     const Clipboard = window.Clipboard
@@ -40,8 +64,10 @@
     export default {
         data () {
             return {
+                shareText: '',
                 key: '',
                 account: null,
+                passwordVisible: false,
                 page: {
                     menu: [
                         {
@@ -99,16 +125,34 @@
                         if (this.account.type === '3DES') {
                             this.account.password = CryptoJS.TripleDES.decrypt(this.account.password, this.key).toString(CryptoJS.enc.Utf8)
                         }
+                        let account = this.account.account || '无'
+                        let password = this.account.password || '无'
+                        let url = this.account.url
+                        this.shareText = `账号：${account}\n密码：${password}`
+                        if (url) {
+                            this.shareText += `\n网址：${url}`
+                        }
+                        console.log('this.shareText', this.shareText)
                     },
                     response => {
                         console.log(response)
                     })
             },
+            togglePassword() {
+                this.passwordVisible = !this.passwordVisible
+            },
+            viewSameDomain() {
+                let domain = this.account.url
+                let arr = this.account.url.split('/').filter(item => item)
+                console.log(arr[1])
+                console.log(domain)
+                this.$router.push(`/manage?keyword=${arr[1]}`)
+            },
             edit() {
                 this.$router.push(`/accounts/${this.accountId}/edit`)
             },
             remove() {
-                let ret = confirm(`删除${this.account.title}?`)
+                let ret = confirm(`确认删除「${this.account.title}」?`)
                 if (!ret) {
                     return
                 }
@@ -131,6 +175,22 @@
 </script>
 
 <style lang="scss" scoped>
+.account {
+    .title {
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+}
+.meta-list {
+    .item {
+        display: flex;
+        margin-bottom: 8px;
+    }
+    .name {
+        width: 60px;
+    }
+}
 .column-title {
     width: 240px;
 }
@@ -151,6 +211,12 @@
     }
 }
 .btn-copy {
-        color: #f00;
+    
+}
+.btns {
+    margin-top: 24px;
+    .btn {
+        margin-right: 8px;
     }
+}
 </style>
