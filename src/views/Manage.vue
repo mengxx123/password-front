@@ -39,9 +39,11 @@
                                 <!-- <div class="password2" v-if="account.type !== ''">{{ key ? decrypt(account.password) : '请输入密钥'}}</div> -->
                                 <!-- <a class="item-btn btn-copy" href="javascript:;" :data-clipboard-text="decrypt(account.password)">复制</a> -->
                             </div>
+                            <a class="url" :href="account.url" v-if="account.url">访问</a>
                         </li>
                     </ul>
-                    <div>最多展示 20 条，请使用搜索</div>
+                    <ui-raised-button label="下一页" @click="nextPage" v-if="!loadFinish" />
+                    <!-- <div v-if="loadFinish">-已经记载完了-</div> -->
                 </div>
 
                 <ui-float-button class="float-button" icon="add" secondary @click="add" />
@@ -59,10 +61,12 @@
     export default {
         data () {
             return {
+                curPage: 1,
                 key: '',
                 keyword: '',
                 accounts: [],
                 maskVisible: true,
+                loadFinish: false,
                 page: {
                     menu: [
                         // {
@@ -133,6 +137,10 @@
         filters: {
         },
         methods: {
+            nextPage() {
+                this.curPage++
+                this.loadData()
+            },
             keyDown(e) {
                 console.log(e.keyCode)
                 if (e.keyCode === 13) {
@@ -155,11 +163,25 @@
                 let { keyword } = this.$route.query
                 // this.userId = this.$route.params.id
                 this.keyword = keyword
-                this.$http.get(`/password/accounts?keyword=${keyword ? encodeURIComponent(keyword) : ''}`).then(
+                this.$http.get(`/password/accounts?page=${this.curPage}&page_size=20&keyword=${keyword ? encodeURIComponent(keyword) : ''}`).then(
                     response => {
                         let data = response.data
                         console.log(data)
-                        this.accounts = data
+                        if (this.curPage !== 1 && !data.length) {
+                            // this.pageVisible = false
+                            this.$message({
+                                type: 'danger',
+                                text: '没有数据了'
+                            })
+                            this.loadFinish = true
+                            // return
+                        }
+                        if (this.curPage === 1) {
+                            this.accounts = data
+                        } else {
+                            this.accounts = this.accounts.concat(data)
+                        }
+                        this.loadFinish = this.accounts.length == response.headers['x-total']
                     },
                     response => {
                         console.log(response)
@@ -248,6 +270,7 @@
 }
 .account-list {
     .item {
+        position: relative;
         margin-bottom: 16px;
         padding: 16px;
         // border: 1px solid #000;
@@ -261,6 +284,12 @@
     .btn-copy {
         // color: #f00;
         cursor: pointer;
+    }
+    .url {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: #ff4081;
     }
 }
 .column-title {

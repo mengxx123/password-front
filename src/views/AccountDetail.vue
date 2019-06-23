@@ -56,8 +56,8 @@
 </template>
 
 <script>
-import { access } from 'fs';
     /* eslint-disable */
+    import { access } from 'fs';
     const CryptoJS = window.CryptoJS
     const Clipboard = window.Clipboard
 
