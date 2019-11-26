@@ -31,6 +31,12 @@
                                 desc: '',
                                 icon: '/static/img/encrypt.svg',
                                 to: '/tool'
+                            },
+                            {
+                                name: '密码强度检测',
+                                desc: '',
+                                icon: '/static/img/encrypt.svg',
+                                to: '/password/check'
                             }
                         ]
                     }

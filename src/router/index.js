@@ -7,6 +7,7 @@ const Tool2 = resolve => require(['@/views/Tool2'], resolve)
 const Manage = resolve => require(['@/views/Manage'], resolve)
 const AccountDetail = resolve => require(['@/views/AccountDetail'], resolve)
 const AccountEdit = resolve => require(['@/views/AccountEdit'], resolve)
+const PasswordCheck = resolve => require(['@/views/PasswordCheck'], resolve)
 const Error404 = resolve => require(['@/views/error/Error404'], resolve)
 const OauthCallback = resolve => require(['@/views/oauth/Callback'], resolve)
 
@@ -25,6 +26,10 @@ let routes = [
     {
         path: '/password/generator',
         component: Tool2
+    },
+    {
+        path: '/password/check',
+        component: PasswordCheck
     },
     {
         path: '/manage',
